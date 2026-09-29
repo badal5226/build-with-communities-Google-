@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Janasetu India – Citizen Demand to Development Priorities (Prototype)</title>
+<style>
+:root{
+  --paper:#E8EEF0; --ink:#14313A; --muted:#5B7078; --line:#C3D0D5; --panel:#F8FBFB;
+  --hot:#B8324B; --amber:#D9A441; --teal:#1F7A75; --sky:#DCE8EC;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,"Noto Sans","Noto Sans Devanagari","Noto Sans Tamil","Noto Sans Bengali",sans-serif;line-height:1.5}
+h1,h2,h3{font-family:"Rockwell","Roboto Slab",Georgia,serif;font-weight:700;margin:0}
+header{background:var(--ink);color:#EAF3F4;padding:20px 20px 0}
+header h1{font-size:1.6rem}
+header p{margin:4px 0 14px;color:#A9C2C8;max-width:70ch;font-size:.95rem}
+nav{display:flex;gap:4px;overflow-x:auto}
+nav button{background:transparent;color:#A9C2C8;border:0;padding:10px 16px;font:inherit;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}
+nav button[aria-selected=true]{color:#fff;border-bottom-color:var(--amber)}
+button:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+main{padding:20px;max-width:1150px;margin:0 auto}
+section[hidden]{display:none}
+.grid{display:grid;gap:20px}
+@media(min-width:850px){.two{grid-template-columns:1.4fr 1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);padding:16px}
+.panel h2{font-size:1.15rem;margin-bottom:10px}
+label{display:block;font-size:.85rem;color:var(--muted);margin:10px 0 4px}
+textarea,select{width:100%;padding:9px;border:1px solid var(--line);background:#fff;font:inherit;color:var(--ink)}
+textarea{min-height:90px;resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row>*{flex:1;min-width:130px}
+button.primary{background:var(--teal);color:#fff;border:0;padding:10px 18px;font:inherit;font-weight:600;cursor:pointer;margin-top:12px}
+button.primary:hover{background:#186660}
+button.primary:disabled{opacity:.6;cursor:wait}
+button.ghost{background:transparent;border:1px solid var(--line);padding:6px 12px;font:inherit;cursor:pointer;color:var(--ink)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{background:var(--sky);border:1px solid var(--line);padding:4px 10px;font:inherit;font-size:.82rem;cursor:pointer;color:var(--ink)}
+.chip:hover{background:#cfe0e6}
+.result{margin-top:14px;border-left:4px solid var(--teal);padding:8px 12px;background:#fff;font-size:.92rem}
+.result dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:2px 12px}
+.result dt{color:var(--muted)}
+.result dd{margin:0;font-weight:600}
+.tag{display:inline-block;padding:1px 8px;font-size:.78rem;background:var(--sky);border:1px solid var(--line)}
+.tag.high{background:#F3D3DA;border-color:#E2A7B4;color:#7d1f33}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600}
+.map svg{width:100%;height:auto;display:block}
+.tile{cursor:pointer;stroke:var(--paper);stroke-width:3}
+.tile.sel{stroke:var(--ink)}
+.tile:focus-visible{stroke:var(--amber)}
+.bar{height:10px;background:var(--sky);position:relative;margin:2px 0 6px}
+.bar>i{position:absolute;left:0;top:0;bottom:0;display:block}
+.legend{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted);margin-top:8px}
+.legend .ramp{height:10px;width:140px;background:linear-gradient(90deg,#E4EEF0,#D9A441,#B8324B)}
+.sliders{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:6px 20px}
+.sliders label{margin:6px 0 0;display:flex;justify-content:space-between}
+input[type=range]{width:100%;accent-color:var(--teal)}
+.proj{border-top:1px solid var(--line);padding:12px 0}
+.proj:first-child{border-top:0}
+.proj h3{font-size:1rem;display:flex;justify-content:space-between;gap:10px}
+.stack{display:flex;height:12px;margin:6px 0;background:var(--sky)}
+.stack i{display:block;height:100%}
+.why{font-size:.86rem;color:var(--muted)}
+.key{display:flex;gap:14px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+.key span::before{content:"";display:inline-block;width:10px;height:10px;margin-right:5px;background:var(--c)}
+.note{font-size:.82rem;color:var(--muted)}
+.switch{display:flex;align-items:flex-start;gap:8px;font-size:.9rem;color:var(--ink);margin:0}
+.switch input{margin-top:5px}
+.banner{background:#FBF1D8;border:1px solid #E6CF95;padding:8px 12px;font-size:.84rem;margin-bottom:16px}
+@media(prefers-reduced-motion:no-preference){.tile{transition:fill .35s}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Janasetu India</h1>
+  <p>Turns citizen requests in Indian languages into ranked development priorities for all 28 states and 8 union territories.</p>
+  <nav role="tablist" aria-label="Sections">
+    <button role="tab" aria-selected="true" data-tab="intake">Submit a request</button>
+    <button role="tab" aria-selected="false" data-tab="map">Demand map</button>
+    <button role="tab" aria-selected="false" data-tab="projects">Priority projects</button>
+    <button role="tab" aria-selected="false" data-tab="log">Request log</button>
+  </nav>
+</header>
+
+<main>
+<div class="banner"><strong>Prototype data.</strong> State populations are approximate (Census 2011). Infrastructure indices, poverty rates, internet access, planned spending, costs and the seeded requests are illustrative placeholders, not official figures. Replace them with Census, NITI Aayog SDG India Index, NFHS, PMGSY, Jal Jeevan Mission and BharatNet data before drawing conclusions.</div>
+
+<section id="intake">
+  <div class="grid two">
+    <div class="panel">
+      <h2>Simulate a citizen message</h2>
+      <p class="note">Write in any Indian language (or English or Hinglish), as if sent by WhatsApp, SMS or a transcribed voice call.</p>
+      <label for="txt">Message</label>
+      <textarea id="txt" placeholder="e.g. बिहार के हमारे गाँव में सड़क पर बड़े गड्ढे हैं"></textarea>
+      <div class="chips" id="samples" aria-label="Sample messages"></div>
+      <div class="row">
+        <div><label for="chan">Channel</label>
+          <select id="chan"><option>WhatsApp</option><option>SMS / USSD</option><option>Voice call (transcribed)</option><option>Telegram</option><option>Web form</option></select></div>
+        <div><label for="dist">State (if not in message)</label><select id="dist"></select></div>
+      </div>
+      <label class="switch"><input type="checkbox" id="useAI" checked> <span>Use Claude to classify and translate (falls back to the built-in word lists if unavailable)</span></label>
+      <button class="primary" id="send">Analyse and add request</button>
+      <div id="out" aria-live="polite"></div>
+    </div>
+    <div class="panel">
+      <h2>How this works</h2>
+      <p class="note">Claude reads the message in its original language and returns the language, category, state, urgency and an English summary. If Claude isn't reachable (for example when this file is opened outside Claude), a built-in word list covers Hindi, Marathi, Bengali, Assamese, Tamil, Telugu, Kannada, Malayalam, Gujarati, Punjabi, Odia, Urdu and English.</p>
+      <p class="note">Each category maps to an existing national scheme so recommendations can be routed to a funded programme: PMGSY (roads), Jal Jeevan Mission (water), Ayushman Bharat health centres, Saubhagya/RDSS (power), BharatNet (internet) and Samagra Shiksha (schools).</p>
+      <p class="note">This version works at state and UT level. Going to all 780+ districts needs district-level datasets; the scoring code doesn't change.</p>
+    </div>
+  </div>
+</section>
+
+<section id="map" hidden>
+  <div class="grid two">
+    <div class="panel map">
+      <h2>Where demand and infrastructure gaps meet</h2>
+      <div class="row" style="align-items:end">
+        <div><label for="cat">Category</label><select id="cat"></select></div>
+        <div><label class="switch"><input type="checkbox" id="fix"> <span>Correct for unequal phone and internet access</span></label></div>
+      </div>
+      <svg id="svg" viewBox="0 0 630 490" role="group" aria-label="India state gap score map"></svg>
+      <div class="legend"><span>Lower gap</span><div class="ramp"></div><span>Higher gap</span></div>
+      <p class="note">A schematic tile map: one tile per state or UT, placed roughly where it sits on the map. Gap score blends demand per capita (40%), infrastructure shortfall (40%) and how little planned spending exists (20%).</p>
+    </div>
+    <div class="panel" id="detail"></div>
+  </div>
+</section>
+
+<section id="projects" hidden>
+  <div class="panel">
+    <h2>Ranked project recommendations</h2>
+    <p class="note">Adjust what matters. Rankings update instantly, and each row shows why it ranks where it does.</p>
+    <div class="sliders" id="sliders"></div>
+    <div class="key" style="margin-top:12px">
+      <span style="--c:var(--hot)">Need</span><span style="--c:var(--amber)">People reached</span>
+      <span style="--c:var(--teal)">Equity</span><span style="--c:#7A8FA6">Cost efficiency</span>
+    </div>
+    <div id="plist"></div>
+  </div>
+</section>
+
+<section id="log" hidden>
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+      <h2>Recent requests</h2>
+      <button class="ghost" id="reset">Clear my requests</button>
+    </div>
+    <div style="overflow-x:auto"><table><thead><tr><th>Message</th><th>English summary</th><th>Language</th><th>Category</th><th>State</th><th>Urgency</th><th>Channel</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </div>
+</section>
+</main>
+
+<script>
+/* ---------- Reference data ---------- */
+const CATS={
+  road:{label:"Roads and bridges",unit:60,scheme:"PMGSY"},
+  water:{label:"Drinking water",unit:45,scheme:"Jal Jeevan Mission"},
+  health:{label:"Health services",unit:70,scheme:"Ayushman Bharat health centres"},
+  power:{label:"Electricity",unit:30,scheme:"Saubhagya / RDSS"},
+  broadband:{label:"Internet access",unit:25,scheme:"BharatNet"},
+  school:{label:"Schools",unit:50,scheme:"Samagra Shiksha"}
+};
+const CK=Object.keys(CATS);
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const R=rng(2026);
+
+// [name, code, pop (millions, approx Census 2011), tier (1 high, 3 low), hard terrain?, col, row, aliases]
+const RAW=[
+["Ladakh","LA",0.27,2,1,3,0,["ladakh","लद्दाख"]],
+["Jammu & Kashmir","JK",12.2,2,1,2,0,["jammu","kashmir","कश्मीर","کشمیر"]],
+["Chandigarh","CH",1.1,1,0,1,1,["chandigarh","चंडीगढ़"]],
+["Punjab","PB",27.7,1,0,2,1,["punjab","पंजाब","ਪੰਜਾਬ"]],
+["Himachal Pradesh","HP",6.9,1,1,3,1,["himachal","हिमाचल"]],
+["Uttarakhand","UK",10.1,2,1,4,1,["uttarakhand","उत्तराखंड"]],
+["Sikkim","SK",0.6,2,1,6,1,["sikkim"]],
+["Arunachal Pradesh","AR",1.4,3,1,8,1,["arunachal"]],
+["Rajasthan","RJ",68.5,2,0,1,2,["rajasthan","राजस्थान"]],
+["Haryana","HR",25.4,1,0,2,2,["haryana","हरियाणा"]],
+["Delhi","DL",16.8,1,0,3,2,["delhi","दिल्ली","دہلی"]],
+["Uttar Pradesh","UP",199.8,3,0,4,2,["uttar pradesh","उत्तर प्रदेश"]],
+["Bihar","BR",104.1,3,0,5,2,["bihar","बिहार"]],
+["West Bengal","WB",91.3,2,0,6,2,["west bengal","bengal","পশ্চিমবঙ্গ","বাংলা"]],
+["Assam","AS",31.2,3,1,7,2,["assam","অসম","আসাম"]],
+["Nagaland","NL",2.0,3,1,8,2,["nagaland"]],
+["Gujarat","GJ",60.4,2,0,1,3,["gujarat","ગુજરાત"]],
+["Madhya Pradesh","MP",72.6,3,0,2,3,["madhya pradesh","मध्य प्रदेश"]],
+["Chhattisgarh","CG",25.5,3,0,3,3,["chhattisgarh","छत्तीसगढ़"]],
+["Jharkhand","JH",33.0,3,0,4,3,["jharkhand","झारखंड"]],
+["Meghalaya","ML",3.0,3,1,7,3,["meghalaya"]],
+["Manipur","MN",2.9,3,1,8,3,["manipur"]],
+["Dadra & Nagar Haveli and Daman & Diu","DN",0.59,2,0,1,4,["dadra","daman"]],
+["Maharashtra","MH",112.4,2,0,2,4,["maharashtra","महाराष्ट्र"]],
+["Telangana","TS",35.0,2,0,3,4,["telangana","తెలంగాణ"]],
+["Odisha","OD",42.0,3,0,4,4,["odisha","orissa","ଓଡ଼ିଶା"]],
+["Tripura","TR",3.7,2,1,7,4,["tripura"]],
+["Mizoram","MZ",1.1,2,1,8,4,["mizoram"]],
+["Goa","GA",1.5,1,0,2,5,["goa"]],
+["Karnataka","KA",61.1,2,0,3,5,["karnataka","ಕರ್ನಾಟಕ"]],
+["Andhra Pradesh","AP",49.4,2,0,4,5,["andhra","ఆంధ్ర"]],
+["Andaman & Nicobar Islands","AN",0.38,2,1,6,5,["andaman","nicobar"]],
+["Lakshadweep","LD",0.06,1,1,2,6,["lakshadweep"]],
+["Kerala","KL",33.4,1,0,3,6,["kerala","കേരള","കേരളത്തിൽ"]],
+["Tamil Nadu","TN",72.1,1,0,4,6,["tamil nadu","tamilnadu","தமிழ்நாடு"]],
+["Puducherry","PY",1.2,1,0,5,6,["puducherry","pondicherry"]]
+];
+const BASE={1:68,2:52,3:36};
+const ST=RAW.map(([name,code,pop,tier,hard,col,row,aliases],i)=>{
+  const infra={},ipc={},cm={};
+  CK.forEach(c=>{
+    infra[c]=Math.max(8,Math.min(96,Math.round(BASE[tier]+(R()-.5)*32-(hard?6:0))));
+    ipc[c]=+(20+R()*60).toFixed(0);
+    cm[c]=(hard?1.5:1)*(0.85+R()*0.3);
+  });
+  const pov={1:[6,16],2:[14,28],3:[26,42]}[tier],acc={1:[70,88],2:[55,72],3:[35,58]}[tier];
+  return {id:i,name,code,pop,tier,col,row,aliases,infra,ipc,cm,
+    poverty:Math.round(pov[0]+R()*(pov[1]-pov[0])),access:Math.round(acc[0]+R()*(acc[1]-acc[0]))};
+});
+const REQ=[];
+ST.forEach(s=>CK.forEach(c=>{
+  const need=(100-s.infra[c])/100;
+  const n=s.pop*0.12*need*(s.access/100)*(0.6+R()*0.9);
+  REQ.push({s:s.id,c,n,seed:true});
+}));
+
+/* ---------- Offline word lists (fallback) ---------- */
+const LEX={
+ road:["road","sadak","pothole","bridge","सड़क","सडक","पुल","गड्ढे","रस्ता","पूल","রাস্তা","সেতু","ৰাস্তা","சாலை","பாலம்","రోడ్డు","వంతెన","ರಸ್ತೆ","ಸೇತುವೆ","റോഡ്","പാലം","રસ્તો","પુલ","ਸੜਕ","ਪੁਲ","ରାସ୍ତା","ପୋଲ","سڑک","پل"],
+ water:["water","pani","paani","drinking","handpump","पानी","नल","हैंडपंप","पाणी","জল","পানি","পানী","தண்ணீர்","குடிநீர்","నీరు","తాగునీరు","ನೀರು","വെള്ളം","കുടിവെള്ളം","પાણી","ਪਾਣੀ","ପାଣି","پانی"],
+ health:["hospital","clinic","doctor","medicine","aspatal","अस्पताल","डॉक्टर","दवा","रुग्णालय","दवाखाना","হাসপাতাল","ডাক্তার","চিকিৎসালয়","மருத்துவமனை","மருத்துவர்","ఆసుపత్రి","డాక్టర్","ಆಸ್ಪತ್ರೆ","ವೈದ್ಯ","ആശുപത്രി","ഡോക്ടർ","હોસ્પિટલ","દવાખાનું","ડૉક્ટર","ਹਸਪਤਾਲ","ਡਾਕਟਰ","ହସ୍ପିଟାଲ","ଡାକ୍ତର","ہسپتال","ڈاکٹر"],
+ power:["electricity","power cut","bijli","light nahi","blackout","बिजली","वीज","বিদ্যুৎ","மின்சாரம்","మின్","కరెంట్","విద్యుత్","ವಿದ್ಯುತ್","വൈദ്യുതി","વીજળી","ਬਿਜਲੀ","ବିଦ୍ୟୁତ","بجلی"],
+ broadband:["internet","network","signal","wifi","इंटरनेट","नेटवर्क","ইন্টারনেট","নেটওয়ার্ক","இணையம்","నెట్‌వర్క్","ఇంటర్నెట్","ಇಂಟರ್ನೆಟ್","ഇന്റർനെറ്റ്","ઇન્ટરનેટ","ਇੰਟਰਨੈੱਟ","ଇଣ୍ଟରନେଟ୍","انٹرنیٹ"],
+ school:["school","teacher","classroom","स्कूल","शिक्षक","शाळा","शाळेत","স্কুল","শিক্ষক","বিদ্যালয়","பள்ளி","ஆசிரியர்","పాఠశాల","ఉపాధ్యాయ","ಶಾಲೆ","ಶಿಕ್ಷಕ","സ്കൂൾ","അധ്യാപക","શાળા","શિક્ષક","ਸਕੂਲ","ਅਧਿਆਪਕ","ସ୍କୁଲ","ଶିକ୍ଷକ","اسکول","استاد"]
+};
+const URGENT_WORDS=["urgent","emergency","jaruri","din se","urgente","जरूरी","जरुरी","तुरंत","आपात","अत्यंत","জরুরি","அவசர","అత్యవసరం","ತುರ್ತು","അടിയന്തര","તાત્કાલિક","ਤੁਰੰਤ","ଜରୁରୀ","فوری","فوری"];
+function detectLang(t){
+  if(/[\u0900-\u097F]/.test(t)) return /(आहे|नाही|नाहीत|आमच्या|गावात|शाळेत|शाळा|पाणी|रस्ता|वीज)/.test(t)?"Marathi":"Hindi";
+  if(/[\u0980-\u09FF]/.test(t)) return /[ৰৱ]/.test(t)?"Assamese":"Bengali";
+  if(/[\u0B80-\u0BFF]/.test(t)) return "Tamil";
+  if(/[\u0C00-\u0C7F]/.test(t)) return "Telugu";
+  if(/[\u0C80-\u0CFF]/.test(t)) return "Kannada";
+  if(/[\u0D00-\u0D7F]/.test(t)) return "Malayalam";
+  if(/[\u0A80-\u0AFF]/.test(t)) return "Gujarati";
+  if(/[\u0A00-\u0A7F]/.test(t)) return "Punjabi";
+  if(/[\u0B00-\u0B7F]/.test(t)) return "Odia";
+  if(/[\u0600-\u06FF]/.test(t)) return "Urdu";
+  if(/\b(hai|nahi|mein|nahin|hain|ke liye|gaon|se)\b/i.test(t)) return "Hinglish";
+  return "English";
+}
+function findState(t){
+  const cands=[];
+  ST.forEach(s=>s.aliases.concat([s.name.toLowerCase()]).forEach(a=>cands.push([a,s])));
+  cands.sort((x,y)=>y[0].length-x[0].length);
+  for(const [a,s] of cands){
+    const hit=/^[a-z &]+$/.test(a)?new RegExp("\\b"+a.replace(/&/g,"\\&")+"\\b").test(t):t.includes(a);
+    if(hit)return s;
+  }
+  return null;
+}
+function lexAnalyse(text,fb){
+  const t=text.toLowerCase();
+  let best=null,bs=0;
+  CK.forEach(c=>{const s=LEX[c].reduce((a,k)=>a+(t.includes(k.toLowerCase())?1:0),0);if(s>bs){bs=s;best=c}});
+  const s=findState(t);
+  const urgent=URGENT_WORDS.some(k=>t.includes(k.toLowerCase()))||/\d+\s*(days?|din|दिन|நாட்கள்)/i.test(t);
+  return {lang:detectLang(text),cat:best,state:(s||ST[fb]).id,stateFound:!!s,urgent,conf:bs?Math.min(.95,.6+bs*.15):0,summary:"",engine:"Built-in word list"};
+}
+async function claudeAnalyse(text,fb){
+  const ctrl=new AbortController(),to=setTimeout(()=>ctrl.abort(),15000);
+  const sys="You classify citizen development requests sent to an Indian government platform. The message may be in any Indian language, English or a mix. Reply with ONLY a JSON object, no other text: {\"language\":\"name of the language\",\"category\":\"one of road|water|health|power|broadband|school|none\",\"state\":\"exact name from the list below, or null if not stated\",\"urgent\":true or false,\"summary_en\":\"one-sentence English summary\"}. States and UTs: "+ST.map(s=>s.name).join("; ")+".";
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},signal:ctrl.signal,
+      body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,system:sys,messages:[{role:"user",content:text}]})});
+    if(!r.ok)throw new Error("HTTP "+r.status);
+    const data=await r.json();
+    const raw=data.content.filter(b=>b.type==="text").map(b=>b.text).join("").replace(/```json|```/g,"").trim();
+    const j=JSON.parse(raw);
+    const s=j.state?ST.find(x=>x.name.toLowerCase()===String(j.state).toLowerCase()):null;
+    const cat=CK.includes(j.category)?j.category:null;
+    return {lang:j.language||detectLang(text),cat,state:(s||ST[fb]).id,stateFound:!!s,urgent:!!j.urgent,conf:cat?0.9:0,summary:j.summary_en||"",engine:"Claude"};
+  }finally{clearTimeout(to)}
+}
+async function analyse(text,fb,useAI){
+  if(useAI){try{return await claudeAnalyse(text,fb)}catch(e){const a=lexAnalyse(text,fb);a.engine="Built-in word list (Claude unavailable)";return a}}
+  return lexAnalyse(text,fb);
+}
+
+/* ---------- State ---------- */
+const LOG=[];
+const SAMPLES=[
+ "Our village in Bihar has had no drinking water for 6 days, urgent",
+ "बिहार के हमारे गाँव में सड़क पर बड़े गड्ढे हैं और पुल टूट गया है",
+ "தமிழ்நாடு எங்கள் கிராமத்தில் மருத்துவமனை இல்லை, மருத்துவர் தேவை",
+ "পশ্চিমবঙ্গ আমাদের গ্রামে বিদ্যুৎ নেই, খুব জরুরি",
+ "తెలంగాణలో మా గ్రామంలో తాగునీరు లేదు, అత్యవసరం",
+ "महाराष्ट्रात आमच्या गावात शाळेत शिक्षक नाहीत",
+ "Odisha mein bijli nahi hai 4 din se, urgent",
+ "കേരളത്തിൽ ഞങ്ങളുടെ ഗ്രാമത്തിൽ ഇന്റർനെറ്റ് ഇല്ല",
+ "ગુજરાતમાં અમારા ગામમાં રસ્તો તૂટેલો છે",
+ "دہلی میں پانی کی شدید قلت ہے، فوری مدد چاہیے"
+];
+let CORRECT=false,W={need:40,impact:25,equity:20,eff:15},SEL=11,CAT="all";
+const REF=0.6;
+
+/* ---------- Scoring ---------- */
+function demand(s,c){
+  const w=CORRECT?Math.min(2.5,REF/(s.access/100)):1;
+  return REQ.filter(r=>r.s===s.id&&(c==="all"||r.c===c)).reduce((a,r)=>a+r.n*w*(r.urgent?1.5:1),0);
+}
+function metrics(){
+  const raw=[];
+  ST.forEach(s=>CK.forEach(c=>{
+    const short=(100-s.infra[c])/100,benef=s.pop*short;
+    raw.push({s,c,dem:demand(s,c)/s.pop,short,ipc:s.ipc[c],benef,cost:CATS[c].unit*benef*s.cm[c]});
+  }));
+  const sorted=raw.map(r=>r.dem).sort((a,b)=>a-b);
+  const p90=sorted[Math.floor(sorted.length*.9)]||1;
+  const mIpc=Math.max(...raw.map(r=>r.ipc)),mBen=Math.max(...raw.map(r=>r.benef)),mEff=Math.max(...raw.map(r=>r.benef/r.cost)),mPov=Math.max(...ST.map(x=>x.poverty));
+  raw.forEach(r=>{
+    r.gap=.4*Math.min(1,r.dem/p90)+.4*r.short+.2*(1-r.ipc/mIpc);
+    r.impact=r.benef/mBen;r.equity=r.s.poverty/mPov;r.eff=(r.benef/r.cost)/mEff;
+  });
+  return raw;
+}
+const tot=()=>W.need+W.impact+W.equity+W.eff||1;
+
+/* ---------- Rendering ---------- */
+const $=q=>document.querySelector(q);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmtPop=m=>m>=1?m.toFixed(1)+" million":Math.round(m*1000)+" thousand";
+const fmtCr=x=>"₹"+Math.round(x).toLocaleString("en-IN")+" crore";
+function ramp(v){
+  const a=[228,238,240],b=[217,164,65],c=[184,50,75];
+  const m=v<.5?[a,b,v*2]:[b,c,(v-.5)*2];
+  return "rgb("+m[0].map((x,i)=>Math.round(x+(m[1][i]-x)*m[2])).join(",")+")";
+}
+function drawMap(){
+  const M=metrics();
+  const val=id=>{const rows=M.filter(r=>r.s.id===id&&(CAT==="all"||r.c===CAT));return rows.reduce((a,r)=>a+r.gap,0)/rows.length};
+  const vs=ST.map(s=>val(s.id)),lo=Math.min(...vs),hi=Math.max(...vs);
+  $("#svg").innerHTML=ST.map((s,i)=>{
+    const x=s.col*70,y=s.row*70,v=(vs[i]-lo)/((hi-lo)||1),dark=v>.6,f=dark?"#fff":"#14313A";
+    return `<g><rect class="tile ${s.id===SEL?"sel":""}" tabindex="0" role="button" aria-label="${esc(s.name)}, gap score ${Math.round(vs[i]*100)}" data-id="${s.id}" x="${x+2}" y="${y+2}" width="66" height="66" fill="${ramp(v)}"/>
+    <text x="${x+35}" y="${y+35}" text-anchor="middle" font-size="19" font-weight="700" fill="${f}" pointer-events="none">${s.code}</text>
+    <text x="${x+35}" y="${y+54}" text-anchor="middle" font-size="14" fill="${f}" pointer-events="none">${Math.round(vs[i]*100)}</text></g>`;
+  }).join("");
+  document.querySelectorAll(".tile").forEach(t=>{
+    const go=()=>{SEL=+t.dataset.id;drawMap()};
+    t.onclick=go;t.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();go()}};
+  });
+  drawDetail(M);
+}
+function drawDetail(M){
+  const s=ST[SEL],rows=M.filter(r=>r.s.id===SEL).sort((a,b)=>b.gap-a.gap);
+  $("#detail").innerHTML=`<h2>${esc(s.name)}</h2>
+  <p class="note">${fmtPop(s.pop)} residents · ${s.poverty}% below poverty line · ${s.access}% with phone and internet access (illustrative)</p>
+  ${rows.map(r=>`<div><div style="display:flex;justify-content:space-between;font-size:.9rem"><strong>${CATS[r.c].label}</strong><span>Gap ${Math.round(r.gap*100)}</span></div>
+    <div class="bar"><i style="width:${r.gap*100}%;background:var(--hot)"></i></div>
+    <div class="note" style="margin:-2px 0 8px">Infrastructure index ${s.infra[r.c]}/100 · ${demand(s,r.c).toFixed(1)} weighted requests · ${fmtCr(s.ipc[r.c]*s.pop)} planned</div></div>`).join("")}`;
+}
+function drawProjects(){
+  const M=metrics(),T=tot();
+  M.forEach(r=>{r.score=(W.need*r.gap+W.impact*r.impact+W.equity*r.equity+W.eff*r.eff)/T});
+  const top=M.sort((a,b)=>b.score-a.score).slice(0,10);
+  $("#plist").innerHTML=top.map((r,i)=>{
+    const p=[[W.need*r.gap,"var(--hot)"],[W.impact*r.impact,"var(--amber)"],[W.equity*r.equity,"var(--teal)"],[W.eff*r.eff,"#7A8FA6"]];
+    const why=[];
+    if(r.short>.55)why.push("infrastructure index only "+r.s.infra[r.c]+"/100");
+    if(r.gap>.6)why.push("high demand relative to planned spending");
+    if(r.equity>.7)why.push("high poverty rate ("+r.s.poverty+"%)");
+    if(r.impact>.7)why.push("reaches about "+fmtPop(r.benef));
+    if(r.eff>.7)why.push("low cost per person reached");
+    return `<div class="proj"><h3><span>${i+1}. ${CATS[r.c].label} in ${esc(r.s.name)}</span><span>${Math.round(r.score*100)}</span></h3>
+    <div class="stack" role="img" aria-label="Score breakdown">${p.map(([v,c])=>`<i style="width:${v/T*100}%;background:${c}"></i>`).join("")}</div>
+    <div class="why">Illustrative cost ${fmtCr(r.cost)}. Route through ${CATS[r.c].scheme}. Ranks high because: ${why.length?why.join("; "):"balanced scores across criteria"}.</div></div>`;
+  }).join("");
+}
+function drawLog(){
+  $("#rows").innerHTML=LOG.length?LOG.slice().reverse().map(l=>`<tr><td lang="und">${esc(l.text)}</td><td>${l.a.summary?esc(l.a.summary):"—"}</td><td>${esc(l.a.lang)}</td><td>${l.a.cat?CATS[l.a.cat].label:"Unclassified"}</td><td>${esc(ST[l.a.state].name)}</td><td><span class="tag ${l.a.urgent?"high":""}">${l.a.urgent?"High":"Normal"}</span></td><td>${esc(l.chan)}</td></tr>`).join(""):`<tr><td colspan="7" class="note">No requests yet. Submit one from the first tab.</td></tr>`;
+}
+function record(text,chan,a){
+  LOG.push({text,chan,a});
+  if(a.cat)REQ.push({s:a.state,c:a.cat,n:1,urgent:a.urgent});
+  drawLog();
+}
+
+/* ---------- Wiring ---------- */
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll("nav button").forEach(x=>x.setAttribute("aria-selected",x===b));
+  ["intake","map","projects","log"].forEach(id=>$("#"+id).hidden=id!==b.dataset.tab);
+  if(b.dataset.tab==="map")drawMap();
+  if(b.dataset.tab==="projects")drawProjects();
+});
+$("#dist").innerHTML=ST.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join("");
+$("#cat").innerHTML=`<option value="all">All categories</option>`+CK.map(c=>`<option value="${c}">${CATS[c].label}</option>`).join("");
+$("#cat").onchange=e=>{CAT=e.target.value;drawMap()};
+$("#fix").onchange=e=>{CORRECT=e.target.checked;drawMap()};
+$("#samples").innerHTML=SAMPLES.map((s,i)=>`<button type="button" class="chip" data-i="${i}" lang="und">${esc(s.length>30?s.slice(0,30)+"…":s)}</button>`).join("");
+document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{$("#txt").value=SAMPLES[c.dataset.i]});
+$("#send").onclick=async()=>{
+  const text=$("#txt").value.trim(),btn=$("#send");
+  if(!text){$("#out").innerHTML=`<div class="result">Enter a message first, or tap one of the samples.</div>`;return}
+  btn.disabled=true;btn.textContent="Analysing…";
+  const a=await analyse(text,+$("#dist").value,$("#useAI").checked);
+  record(text,$("#chan").value,a);
+  $("#out").innerHTML=`<div class="result"><dl>
+    <dt>Language</dt><dd>${esc(a.lang)}</dd>
+    ${a.summary?`<dt>In English</dt><dd>${esc(a.summary)}</dd>`:""}
+    <dt>Category</dt><dd>${a.cat?CATS[a.cat].label+" ("+Math.round(a.conf*100)+"% confidence)":"Could not classify. Route to a human reviewer."}</dd>
+    <dt>State</dt><dd>${esc(ST[a.state].name)}${a.stateFound?"":" (from dropdown)"}</dd>
+    <dt>Urgency</dt><dd>${a.urgent?"High":"Normal"}</dd>
+    <dt>Analysed by</dt><dd>${esc(a.engine)}</dd></dl>
+    <p class="note" style="margin:8px 0 0">Added. Check the map and priority tabs to see the effect.</p></div>`;
+  $("#txt").value="";btn.disabled=false;btn.textContent="Analyse and add request";
+};
+$("#reset").onclick=()=>{LOG.length=0;for(let i=REQ.length-1;i>=0;i--)if(!REQ[i].seed)REQ.splice(i,1);drawLog()};
+$("#sliders").innerHTML=[["need","Need (gap score)"],["impact","People reached"],["equity","Equity (poverty)"],["eff","Cost efficiency"]].map(([k,l])=>
+  `<div><label for="w-${k}"><span>${l}</span><span id="v-${k}">${W[k]}</span></label><input type="range" id="w-${k}" min="0" max="100" value="${W[k]}"></div>`).join("");
+Object.keys(W).forEach(k=>$("#w-"+k).oninput=e=>{W[k]=+e.target.value;$("#v-"+k).textContent=W[k];drawProjects()});
+
+// preload a few messages (built-in word list, no network) so the log isn't empty
+SAMPLES.slice(0,6).forEach((s,i)=>record(s,["WhatsApp","SMS / USSD","Voice call (transcribed)","Telegram"][i%4],lexAnalyse(s,i)));
+</script>
+</body>
+</html>
